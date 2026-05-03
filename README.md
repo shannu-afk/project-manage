@@ -1,77 +1,148 @@
-# Project Management Web App
+# Project Management System
 
-Build a web app where users can create projects, assign tasks, and track progress with role-based access (Admin/Member).
+Full-stack web application for managing projects and tasks with role-based access control (RBAC).
 
-## 🚀 Key Features
-- **Authentication** (Signup/Login with JWT)
-- **Project & team management** (Create projects, add members)
-- **Task creation, assignment & status tracking** (Assign to users, update status, due dates)
-- **Dashboard** (View tasks, status, overdue items)
-- **Role-based access control** (Admin: manage projects/teams; Member: tasks)
+## 🌟 Features
+- **User Authentication**: Register/Login with JWT tokens
+- **Role Management**: Admin (manage projects/tasks/members) | Member (view/update own tasks)
+- **Project Management**: Create projects, add members (Admin only)
+- **Task Management**: Create/assign tasks to projects/users, update status (Pending → In Progress → Completed), due dates
+- **Dashboard**: View projects, tasks, statuses
+- **Protected Routes**: All APIs require auth (Bearer token); Admin-only endpoints enforced
 
-## 🛠️ Tech Stack
-- **Frontend**: React + Vite + Axios + CSS
-- **Backend**: Node.js + Express + MongoDB (Mongoose) + JWT + bcrypt
-- **Pages**: Login, Register, Dashboard
-- **APIs**: Auth, Projects, Tasks
+## 🏗️ Tech Stack
+| Frontend | Backend | Database |
+|----------|---------|----------|
+| React 19, Vite, React Router, Axios | Node.js, Express, Mongoose | MongoDB |
 
-## 📱 Screenshots
-*(Add screenshots of Dashboard, Project list, etc. after testing)*
+## 📁 Project Structure
+```
+.
+├── client/           # React + Vite frontend
+│   ├── src/
+│   │   ├── pages/    # Login.jsx, Register.jsx, Dashboard.jsx
+│   │   └── api/      # Axios API client
+│   └── package.json
+├── server/           # Express + Mongoose backend
+│   ├── models/       # User.js, Project.js, Task.js
+│   ├── routes/       # authRoutes.js, projectRoutes.js, taskRoutes.js
+│   ├── middleware/   # auth.js, role.js
+│   └── server.js
+├── README.md
+├── .gitignore
+└── TODO.md
+```
 
-## 🚀 Quick Start
+## 🗄️ Database Schemas
 
-### Prerequisites
-- Node.js 18+
-- MongoDB (local or Atlas)
+### User
+```js
+{
+  name: String (req),
+  email: String (unique, req),
+  password: String (hashed, req),
+  role: "Admin"|"Member" (default: Member)
+}
+```
 
-### Backend
+### Project
+```js
+{
+  name: String (req),
+  description: String,
+  createdBy: ObjectId (ref: User, req),
+  members: [ObjectId] (ref: User)
+}
+```
+
+### Task
+```js
+{
+  title: String (req),
+  description: String,
+  project: ObjectId (ref: Project),
+  assignedTo: ObjectId (ref: User),
+  status: "Pending"|"In Progress"|"Completed" (default: Pending),
+  dueDate: Date
+}
+```
+
+## 🔌 API Endpoints
+
+**Base URL**: `http://localhost:5000/api`
+
+| Method | Endpoint | Auth | Role | Description |
+|--------|----------|------|------|-------------|
+| POST | `/auth/register` | - | - | Create user (first user auto Admin) |
+| POST | `/auth/login` | - | - | Login, returns JWT token |
+| POST | `/projects` | ✅ | Admin | Create project |
+| GET | `/projects` | ✅ | Any | List projects (populated members) |
+| POST | `/tasks` | ✅ | Admin | Create task |
+| GET | `/tasks` | ✅ | Any | List tasks (populated assignedTo/project) |
+| PUT | `/tasks/:id` | ✅ | Any* | Update task (*assumed own tasks) |
+
+**Auth**: `Authorization: Bearer <token>`
+
+## 🚀 Setup & Run
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/shannu-afk/project-manage.git
+cd project-manage
+```
+
+### 2. Backend
 ```bash
 cd server
 npm install
-# Copy .env.example to .env and set MONGO_URI, JWT_SECRET
-npm start
+# Create .env:
+# MONGO_URI=mongodb://localhost:27017/projectmanage  # or Atlas
+# JWT_SECRET=your_super_secret_key_min32chars
+npm run dev  # or npm start
 ```
-Server runs on http://localhost:5000
+🌐 Server: http://localhost:5000
 
-### Frontend
+### 3. Frontend
 ```bash
-cd client
+cd ../client
 npm install
 npm run dev
 ```
-App runs on http://localhost:5173
+🌐 App: http://localhost:5173
 
-### Database
-Uses MongoDB. Run `npm run seed` in server/ for sample data.
-
-## ⚙️ Environment Variables
-- `MONGO_URI`: MongoDB connection string
-- `JWT_SECRET`: Secret for JWT tokens
-
-## API Endpoints
-- POST /api/auth/register
-- POST /api/auth/login
-- GET/POST /api/projects
-- GET/POST /api/tasks
-
-## Project Structure
-```
-.
-├── client/          # React frontend
-├── server/          # Node/Express backend
-├── README.md
-└── .gitignore
+### 4. Seed Data (optional)
+```bash
+cd server
+node seed.js
 ```
 
-## Role-based Access
-- **Admin**: Create/edit projects, assign members/tasks
-- **Member**: View assigned tasks, update status
+## 🔐 Environment Variables (.env)
+```
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+PORT=5000
+```
 
-## Future Enhancements
-- File uploads
-- Notifications
-- Charts for progress
+## 🧪 Testing Flow
+1. Register first user → becomes Admin
+2. Login → get token
+3. Dashboard: Create project/task
+4. Register more users (Members)
+5. Assign members/tasks
 
-## Deployment
-- Backend: Render/Heroku + MongoDB Atlas
-- Frontend: Vercel/Netlify
+## 🚀 Deployment
+- **Backend**: Railway/Render + MongoDB Atlas
+- **Frontend**: Vercel/Netlify
+- Set env vars in platform
+
+## 🤝 Contributing
+1. Fork & clone
+2. `npm i` both folders
+3. Create feature branch
+4. PR to `main`
+
+## 📄 License
+MIT
+
+## 🙌 Acknowledgments
+Built with ❤️ using modern JS stack.
