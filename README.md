@@ -144,7 +144,4 @@ PORT=5000
 ## 📄 License
 MIT
 
-NOTE : This project currently using default mongodb 
-
-## 🙌 Acknowledgments
-Built with ❤️ using modern JS stack.
+## NOTE : This project currently using default mongodb 
